@@ -53,6 +53,9 @@
       register: ipaddr
     - debug: var=ipaddr.stdout_lines
 
+    - name: ensure httpd running
+      service: name=httpd state=started enabled=yes
+
   handlers:
     - name: restart httpd
       service: name=httpd state=restarted
