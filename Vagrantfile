@@ -26,6 +26,12 @@ Vagrant.configure(2) do |config|
 		vagrant3.vm.network "private_network", ip: "172.28.128.12"
 		vagrant3.vm.hostname = "vagrant3.local"
 	end
+	config.vm.define "master" do | master |
+		master.vm.box = "centos/7"
+		master.vm.box_check_update = false
+		master.vm.network "private_network", ip: "172.28.128.2"
+		master.vm.hostname = "puppeteer.local"
+	end
 	#config.vm.provider "docker" do |d|
 	#  d.image = "centos:7"
 	#end

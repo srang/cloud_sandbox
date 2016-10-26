@@ -1,61 +1,6 @@
 #!/usr/bin/env ansible-playbook
-- name: Configure webserver
-  hosts: webservers
-  become: True
-  tasks:
-    - name: install httpd
-      yum: name=httpd state=installed
+- name: Set up web servers
 
-    - name: create group
-      group: name=engineering state=present
+- include: playbooks/master.yml
 
-    - name: create engineer
-      user: >
-        name=engineer1
-        group=engineering
-        shell=/sbin/nologin
-
-    - name: enable epel
-      yum: 
-        name: "https://dl.fedoraproject.org/pub/epel/7/x86_64/e/epel-release-7-8.noarch.rpm"
-        state: present
-
-    - name: install passlib
-      yum: name=python-passlib
-
-    - name: add engineer to webpass
-      htpasswd: >
-        path=/etc/httpd/webpass
-        name=engineer1
-        password=test123
-        state=present
-        create=yes
-        crypt_scheme=plaintext
-        owner=apache
-        mode=0640
-      notify: restart httpd
-
-    - name: create engineer dir
-      file: path=/var/www/html/engineer state=directory
-      notify: restart httpd
-
-    - name: copy configuration
-      template: src=templates/httpd.conf.j2 dest=/etc/httpd/conf/httpd.conf
-      notify: restart httpd
-
-    - name: copy index
-      template: src={{ item }} dest=/var/www/html/{{ item | basename | regex_replace('\.j2', '') | regex_replace('_','/') }} mode=0644
-      with_fileglob: templates/*.html.j2
-      notify: restart httpd
-
-    - name: debug ipaddr
-      command: /sbin/ip addr show dev eth0
-      register: ipaddr
-    - debug: var=ipaddr.stdout_lines
-
-    - name: ensure httpd running
-      service: name=httpd state=started enabled=yes
-
-  handlers:
-    - name: restart httpd
-      service: name=httpd state=restarted
+- include: playbooks/web.yml
