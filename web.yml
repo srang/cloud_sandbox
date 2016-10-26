@@ -1,6 +1,2 @@
 #!/usr/bin/env ansible-playbook
-- name: Set up web servers
-
 - include: playbooks/master.yml
-
-- include: playbooks/web.yml

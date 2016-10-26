@@ -5,6 +5,7 @@ Vagrant.configure(2) do |config|
 	# https://atlas.hashicorp.com/search.
 	# not applicable for docker
 	config.ssh.insert_key = false
+	config.ssh.forward_agent = true
 	config.vm.define "vagrant1" do | vagrant1 |
 		vagrant1.vm.box = "centos/7"
 		vagrant1.vm.box_check_update = false

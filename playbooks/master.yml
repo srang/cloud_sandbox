@@ -1,3 +1,21 @@
 - name: Configure ansible master
+  hosts: master
+  become: True
+  tasks:
 
+    - name: enable epel
+      yum: 
+        name: "https://dl.fedoraproject.org/pub/epel/7/x86_64/e/epel-release-7-8.noarch.rpm"
+        state: present
 
+    - name: install packages
+      yum: name={{ item }} state=installed
+      with_items:
+        - vim
+        - git
+        - traceroute
+        - telnet
+        - ansible
+
+    - name: clone this
+      git:
