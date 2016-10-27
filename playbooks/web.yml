@@ -51,6 +51,8 @@
     - name: debug ipaddr
       command: /sbin/ip addr show dev eth0
       register: ipaddr
+      changed_when: False
+
     - debug: var=ipaddr.stdout_lines
 
     - name: ensure httpd running

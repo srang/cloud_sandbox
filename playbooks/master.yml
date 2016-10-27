@@ -1,0 +1,56 @@
+#!/usr/bin/env ansible-playbook
+- name: Configure ansible master
+  hosts: master
+  become: True
+  vars:
+    git_dir: /opt/ansible
+    git_repo: https://github.com/srang/cloud_sandbox.git
+  tasks:
+
+    - name: enable epel
+      yum:
+        name: "https://dl.fedoraproject.org/pub/epel/7/x86_64/e/epel-release-7-8.noarch.rpm"
+        state: present
+
+    - name: install packages
+      yum:
+        name: "{{ item }}"
+        state: installed
+      with_items:
+        - vim
+        - git
+        - traceroute
+        - telnet
+        - ansible
+
+    - name: create vagrant directory
+      file:
+        path: /home/vagrant/.vagrant.d
+        state: directory
+        mode: 0755
+
+    - name: copy ssh key
+      copy:
+        src: ~/.vagrant.d/insecure_private_key
+        dest: /home/vagrant/.vagrant.d/insecure_private_key
+        owner: vagrant
+        mode: 0600
+
+    - name: create playbook directory
+      file:
+        path: "{{ git_dir }}"
+        state: directory
+        mode: 0755
+
+    - name: clone this repo
+      git:
+        clone: yes
+        repo: "{{ git_repo }}"
+        dest: "{{ git_dir }}"
+
+    - name: update config
+      lineinfile:
+        dest: "{{ git_dir }}/ansible.cfg"
+        regexp: '^hostfile'
+        line: 'hostfile = master_inventory'
+        state: present
