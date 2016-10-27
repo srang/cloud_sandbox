@@ -24,27 +24,33 @@
       yum: name=python-passlib
 
     - name: add engineer to webpass
-      htpasswd: >
-        path=/etc/httpd/webpass
-        name=engineer1
-        password=test123
-        state=present
-        create=yes
-        crypt_scheme=plaintext
-        owner=apache
-        mode=0640
+      htpasswd:
+        path: /etc/httpd/webpass
+        name: engineer1
+        password: test123
+        state: present
+        create: yes
+        owner: apache
+        mode: 0640
       notify: restart httpd
 
     - name: create engineer dir
-      file: path=/var/www/html/engineer state=directory
+      file:
+        path: /var/www/html/engineer
+        state: directory
       notify: restart httpd
 
     - name: copy configuration
-      template: src=templates/httpd.conf.j2 dest=/etc/httpd/conf/httpd.conf
+      template:
+        src: templates/httpd.conf.j2
+        dest: /etc/httpd/conf/httpd.conf
       notify: restart httpd
 
     - name: copy index
-      template: src={{ item }} dest=/var/www/html/{{ item | basename | regex_replace('\.j2', '') | regex_replace('_','/') }} mode=0644
+      template:
+        src: "{{ item }}"
+        dest: "/var/www/html/{{ item | basename | regex_replace('\.j2', '') | regex_replace('_','/') }}"
+        mode: 0644
       with_fileglob: templates/*.html.j2
       notify: restart httpd
 
@@ -53,7 +59,9 @@
       register: ipaddr
       changed_when: False
 
-    - debug: var=ipaddr.stdout_lines
+    - name: print ip
+      debug:
+        var: ipaddr.stdout_lines
 
     - name: ensure httpd running
       service: name=httpd state=started enabled=yes
