@@ -1,6 +1,10 @@
+#!/usr/bin/env ansible-playbook
 - name: Configure ansible master
   hosts: master
   become: True
+  vars:
+    git_dir: /opt/ansible
+    git_repo: https://github.com/srang/cloud_sandbox.git
   tasks:
 
     - name: enable epel
@@ -17,5 +21,27 @@
         - telnet
         - ansible
 
-    - name: clone this
+    - name: create vagrant directory
+      file:
+        path: /home/vagrant/.vagrant.d
+        state: directory
+        mode: 0755
+
+    - name: copy ssh key
+      copy:
+        src: ~/.vagrant.d/insecure_private_key
+        dest: /home/vagrant/.vagrant.d/insecure_private_key
+        owner: vagrant
+        mode: 0600
+
+    - name: create playbook directory
+      file:
+        path: "{{ git_dir }}"
+        state: directory
+        mode: 0755
+
+    - name: clone this repo
       git:
+        clone: yes
+        repo: "{{ git_repo }}"
+        dest: "{{ git_dir }}"

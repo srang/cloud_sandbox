@@ -1,0 +1,4 @@
+[webservers]
+vagrant1 172.28.128.10
+vagrant2 172.28.128.11
+vagrant3 172.28.128.12
