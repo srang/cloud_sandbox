@@ -8,12 +8,14 @@
   tasks:
 
     - name: enable epel
-      yum: 
+      yum:
         name: "https://dl.fedoraproject.org/pub/epel/7/x86_64/e/epel-release-7-8.noarch.rpm"
         state: present
 
     - name: install packages
-      yum: name={{ item }} state=installed
+      yum:
+        name: "{{ item }}"
+        state: installed
       with_items:
         - vim
         - git
@@ -45,3 +47,10 @@
         clone: yes
         repo: "{{ git_repo }}"
         dest: "{{ git_dir }}"
+
+    - name: update config
+      lineinfile:
+        dest: "{{ git_dir }}/ansible.cfg"
+        regexp: '^hostfile'
+        line: 'hostfile = master_inventory'
+        state: present
