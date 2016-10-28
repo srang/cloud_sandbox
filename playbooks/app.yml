@@ -1,0 +1,53 @@
+#!/usr/bin/env ansible-playbook
+- name: build application
+  hosts: master
+  vars:
+    git_dir: /opt/camel
+    git_repo: https://github.com/srang/cloud_camel.git
+  become: True
+  tasks:
+
+    - name: create project dir
+      file:
+        path: "{{ git_dir }}"
+        state: directory
+        mode: 755
+        owner: vagrant
+
+    - name: clone projects
+      become: no
+      git:
+        clone: yes
+        force: yes
+        repo: "{{ git_repo }}"
+        dest: "{{ git_dir }}"
+
+    - name: install maven
+      yum:
+        name: maven
+        state: installed
+
+    - name: build project
+      command: "mvn clean install -f {{ git_dir }}/pom.xml"
+
+    - name: copy jar to app servers
+      command: "ansible appservers -m copy -a 'src={{ git_dir }}/target/app.jar dest=/home/vagrant/app.jar owner=vagrant"
+
+- name: set up app servers
+  hosts: appservers
+  tasks:
+
+    - name: install java
+      yum:
+        name: java
+        state: installed
+
+    - name: set env vars
+      environment:
+        APP_PORT: 81
+        DB_HOST: localhost
+        DB_PORT: 81
+        DB_CONTEXT: "/data"
+
+    - name: run app
+      command: "~/app.jar"

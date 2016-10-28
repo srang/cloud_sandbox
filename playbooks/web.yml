@@ -4,16 +4,20 @@
   become: True
   tasks:
     - name: install httpd
-      yum: name=httpd state=installed
+      yum:
+        name: httpd
+        state: installed
 
     - name: create group
-      group: name=engineering state=present
+      group:
+        name: engineering
+        state: present
 
     - name: create engineer
-      user: >
-        name=engineer1
-        group=engineering
-        shell=/sbin/nologin
+      user:
+        name: engineer1
+        group: engineering
+        shell: /sbin/nologin
 
     - name: enable epel
       yum: 
@@ -21,7 +25,8 @@
         state: present
 
     - name: install passlib
-      yum: name=python-passlib
+      yum:
+        name: python-passlib
 
     - name: add engineer to webpass
       htpasswd:
@@ -54,6 +59,14 @@
       with_fileglob: templates/*.html.j2
       notify: restart httpd
 
+    - name: copy scripts
+      copy:
+        src: "{{ item }}"
+        dest: "/var/www/html/{{ item + basename }}"
+        mode: 0644
+      with_fileglob: files/*.js
+      notify: restart httpd
+
     - name: debug ipaddr
       command: /sbin/ip addr show dev eth0
       register: ipaddr
@@ -64,7 +77,10 @@
         var: ipaddr.stdout_lines
 
     - name: ensure httpd running
-      service: name=httpd state=started enabled=yes
+      service:
+        name: httpd
+        state: started
+        enabled: yes
 
   handlers:
     - name: restart httpd

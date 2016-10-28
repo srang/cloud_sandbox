@@ -1,4 +1,11 @@
 [webservers]
 vagrant1.local
+
+[appservers]
 vagrant2.local
+
+[databases]
 vagrant3.local
+
+[master]
+master.local
