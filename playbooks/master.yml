@@ -43,11 +43,6 @@
         owner: vagrant
         mode: 0755
 
-    - name: set vagrant user home to ansible
-      user:
-        name: vagrant
-        home: "{{ git_dir }}"
-
     - name: clone this repo
       become: no
       git:
