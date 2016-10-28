@@ -4,6 +4,7 @@
   vars:
     git_dir: /opt/camel
     git_repo: https://github.com/srang/cloud_camel.git
+    app_port: 80
   become: True
   tasks:
 
@@ -44,9 +45,9 @@
 
     - name: set env vars
       environment:
-        APP_PORT: 81
+        APP_PORT: {{ app_port }}
         DB_HOST: localhost
-        DB_PORT: 81
+        DB_PORT: {{ app_port }}
         DB_CONTEXT: "/data"
 
     - name: run app

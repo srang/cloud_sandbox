@@ -1,6 +1,8 @@
 #!/usr/bin/env ansible-playbook
 - name: Configure webserver
   hosts: webservers
+  vars:
+    http_listen_port: 80
   become: True
   tasks:
     - name: install httpd
@@ -47,34 +49,25 @@
 
     - name: copy configuration
       template:
-        src: templates/httpd.conf.j2
+        src: ../templates/httpd.conf.j2
         dest: /etc/httpd/conf/httpd.conf
       notify: restart httpd
 
     - name: copy index
       template:
         src: "{{ item }}"
-        dest: "/var/www/html/{{ item | basename | regex_replace('\.j2', '') | regex_replace('_','/') }}"
+        dest: "/var/www/html/{{ item | basename | regex_replace('.j2', '') | regex_replace('_','/') }}"
         mode: 0644
-      with_fileglob: templates/*.html.j2
+      with_fileglob: ../templates/*.html.j2
       notify: restart httpd
 
     - name: copy scripts
       copy:
         src: "{{ item }}"
-        dest: "/var/www/html/{{ item + basename }}"
+        dest: "/var/www/html/{{ item | basename }}"
         mode: 0644
-      with_fileglob: files/*.js
+      with_fileglob: ../files/*.js
       notify: restart httpd
-
-    - name: debug ipaddr
-      command: /sbin/ip addr show dev eth0
-      register: ipaddr
-      changed_when: False
-
-    - name: print ip
-      debug:
-        var: ipaddr.stdout_lines
 
     - name: ensure httpd running
       service:

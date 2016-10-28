@@ -1,6 +1,6 @@
 ServerRoot "/etc/httpd"
 ServerTokens Prod
-Listen 81
+Listen {{ http_list_port }}
 Include conf.modules.d/*.conf
 User apache
 Group apache
