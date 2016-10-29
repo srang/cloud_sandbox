@@ -4,7 +4,7 @@ $("#name-submit").on('click', function() {
     $.get({
       url: '/api/hello/'+name,
       success: function(resp) {
-        $('#name-last').text(resp.body);
+        $('#name-last').text(resp);
       },
       error: function() {
         $('#name-last').text("error");
