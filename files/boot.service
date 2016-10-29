@@ -1,0 +1,11 @@
+[Unit]
+Description=bootapp
+After=syslog.target
+
+[Service]
+User=spring
+ExecStart=/opt/app.jar
+SuccessExitStatus=143
+
+[Install]
+WantedBy=multi-user.target

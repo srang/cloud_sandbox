@@ -2,7 +2,7 @@
 - name: Configure webserver
   hosts: webservers
   vars:
-    http_listen_port: 80
+    http_list_port: 80
   become: True
   tasks:
     - name: install httpd
