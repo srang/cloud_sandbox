@@ -6,7 +6,7 @@ After=syslog.target
 Environment=APP_PORT={{ app_port }}
 Environment=DB_HOST={{ db_host }}
 Environment=DB_PORT={{ db_port }}
-User=spring
+User=root
 ExecStart=/opt/app.jar
 SuccessExitStatus=143
 

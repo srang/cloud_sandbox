@@ -47,18 +47,11 @@
     db_host: localhost
   tasks:
 
-    - name: create spring user
-      user:
-        name: spring
-        shell: /sbin/nologin
-        state: present
-      notify: restart boot
-
     - name: copy jar from master to app servers
       copy:
         src: "{{ git_dir }}/target/app.jar"
         dest: /opt
-        owner: spring
+        owner: vagrant
         mode: 0755
       notify: restart boot
 
