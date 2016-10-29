@@ -42,9 +42,9 @@
   become: True
   vars:
     git_dir: /opt/camel
-    app_port: 80
-    db_port: 80
-    db_host: localhost
+    app_port: 8080
+    db_port: 8080
+    db_host: app.server.local
   tasks:
 
     - name: copy jar from master to app servers

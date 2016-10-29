@@ -53,6 +53,12 @@
         dest: /etc/httpd/conf/httpd.conf
       notify: restart httpd
 
+    - name: allow selinux proxy
+      seboolean:
+        name: httpd_can_network_connect
+        persistent: yes
+        state: yes
+
     - name: copy site configuration
       template:
         src: ../files/app.conf
