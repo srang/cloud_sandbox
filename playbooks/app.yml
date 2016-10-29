@@ -64,9 +64,9 @@
 
     - name: set up systemd service
       template:
-        src: ../template/boot.service.j2
-        dest: /etc/systemd/system
-      notify: restart boot
+        src: ../templates/boot.service.j2
+        dest: /etc/systemd/system/boot.service
+      notify: reload systemd
 
     - name: install java
       yum:
@@ -79,3 +79,7 @@
       service:
         name: boot
         state: restarted
+
+    - name: reload systemd
+      command: "systemctl daemon-reload"
+      notify: restart boot
