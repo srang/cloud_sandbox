@@ -1,5 +1,5 @@
 [Unit]
-Description=bootapp
+Description=boot-app
 After=syslog.target
 
 [Service]

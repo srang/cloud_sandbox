@@ -32,25 +32,47 @@
       become: no
       command: "mvn clean install -f {{ git_dir }}/pom.xml"
 
-    - name: copy jar to app servers
-      command: "ansible appservers -m copy -a 'src={{ git_dir }}/target/app.jar dest=/home/vagrant owner=vagrant'"
 
 - name: set up app servers
   hosts: appservers
   become: True
   vars:
+    git_dir: /opt/camel
     app_port: 80
   tasks:
+
+    - name: create spring user
+      user:
+        name: spring
+        shell: /sbin/nologin
+        state: present
+
+    - name: copy jar from master to app servers
+      copy:
+        src: "{{ git_dir }}/target/app.jar"
+        dest: /opt
+        owner: spring
+        mode: 0100
+
+    - name: set up systemd service
+      copy:
+        src: ../files/boot.service
+        dest: /etc/systemd/system
+      notify: restart boot
 
     - name: install java
       yum:
         name: java
         state: installed
+      notify: restart boot
 
-    - name: run app
+  handlers:
+    - name: restart boot
       environment:
         APP_PORT: "{{ app_port }}"
         DB_HOST: localhost
         DB_PORT: "{{ app_port }}"
         DB_CONTEXT: "/data"
       service:
+        name:boot
+        state: restarted
