@@ -3,6 +3,9 @@ Description=boot-app
 After=syslog.target
 
 [Service]
+Environment=APP_PORT={{ app_port }}
+Environment=DB_HOST={{ db_host }}
+Environment=DB_PORT={{ db_port }}
 User=spring
 ExecStart=/opt/app.jar
 SuccessExitStatus=143

@@ -13,6 +13,7 @@
         state: directory
         owner: vagrant
         mode: 0755
+      notify: rebuild
 
     - name: clone projects
       become: no
@@ -22,12 +23,15 @@
         version: master
         repo: "{{ git_repo }}"
         dest: "{{ git_dir }}"
+      notify: rebuild
 
     - name: install maven
       yum:
         name: maven
         state: installed
+      notify: rebuild
 
+  handlers:
     - name: build project
       become: no
       command: "mvn clean install -f {{ git_dir }}/pom.xml"
@@ -39,6 +43,8 @@
   vars:
     git_dir: /opt/camel
     app_port: 80
+    db_port: 80
+    db_host: localhost
   tasks:
 
     - name: create spring user
@@ -46,17 +52,19 @@
         name: spring
         shell: /sbin/nologin
         state: present
+      notify: restart boot
 
     - name: copy jar from master to app servers
       copy:
         src: "{{ git_dir }}/target/app.jar"
         dest: /opt
         owner: spring
-        mode: 0100
+        mode: 0755
+      notify: restart boot
 
     - name: set up systemd service
-      copy:
-        src: ../files/boot.service
+      template:
+        src: ../template/boot.service.j2
         dest: /etc/systemd/system
       notify: restart boot
 
@@ -68,11 +76,6 @@
 
   handlers:
     - name: restart boot
-      environment:
-        APP_PORT: "{{ app_port }}"
-        DB_HOST: localhost
-        DB_PORT: "{{ app_port }}"
-        DB_CONTEXT: "/data"
       service:
-        name:boot
+        name: boot
         state: restarted
