@@ -1,0 +1,78 @@
+#!/usr/bin/env ansible-playbook
+- name: build application
+  hosts: master
+  vars:
+    git_dir: /opt/camel
+    git_repo: https://github.com/srang/cloud_camel.git
+  become: True
+  tasks:
+
+    - name: create project dir
+      file:
+        path: "{{ git_dir }}"
+        state: directory
+        owner: vagrant
+        mode: 0755
+      notify: rebuild
+
+    - name: clone projects
+      become: no
+      git:
+        clone: yes
+        force: yes
+        version: master
+        repo: "{{ git_repo }}"
+        dest: "{{ git_dir }}"
+      notify: rebuild
+
+    - name: install maven
+      yum:
+        name: maven
+        state: installed
+      notify: rebuild
+
+  handlers:
+    - name: build project
+      become: no
+      command: "mvn clean install -f {{ git_dir }}/pom.xml"
+
+
+- name: set up app servers
+  hosts: appservers
+  become: True
+  vars:
+    git_dir: /opt/camel
+    app_port: 8080
+    db_port: 8080
+    db_host: app.server.local
+  tasks:
+
+    - name: copy jar from master to app servers
+      copy:
+        src: "{{ git_dir }}/target/app.jar"
+        dest: /opt
+        owner: vagrant
+        mode: 0755
+      notify: restart boot
+
+    - name: set up systemd service
+      template:
+        src: ../templates/boot.service.j2
+        dest: /etc/systemd/system/boot.service
+      notify: reload systemd
+
+    - name: install java
+      yum:
+        name: java
+        state: installed
+      notify: restart boot
+
+  handlers:
+    - name: restart boot
+      service:
+        name: boot
+        state: restarted
+
+    - name: reload systemd
+      command: "systemctl daemon-reload"
+      notify: restart boot

@@ -1,4 +1,11 @@
 [webservers]
-vagrant1 172.28.128.10
-vagrant2 172.28.128.11
-vagrant3 172.28.128.12
+vagrant1.local
+
+[appservers]
+vagrant2.local
+
+[databases]
+vagrant3.local
+
+[master]
+master.local

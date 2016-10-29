@@ -1,19 +1,25 @@
 #!/usr/bin/env ansible-playbook
 - name: Configure webserver
   hosts: webservers
+  vars:
+    http_list_port: 80
   become: True
   tasks:
     - name: install httpd
-      yum: name=httpd state=installed
+      yum:
+        name: httpd
+        state: installed
 
     - name: create group
-      group: name=engineering state=present
+      group:
+        name: engineering
+        state: present
 
     - name: create engineer
-      user: >
-        name=engineer1
-        group=engineering
-        shell=/sbin/nologin
+      user:
+        name: engineer1
+        group: engineering
+        shell: /sbin/nologin
 
     - name: enable epel
       yum: 
@@ -21,42 +27,69 @@
         state: present
 
     - name: install passlib
-      yum: name=python-passlib
+      yum:
+        name: "{{ item }}"
+        state: installed
+      with_items:
+        - python-passlib
+        - libsemanage-python
 
     - name: add engineer to webpass
-      htpasswd: >
-        path=/etc/httpd/webpass
-        name=engineer1
-        password=test123
-        state=present
-        create=yes
-        crypt_scheme=plaintext
-        owner=apache
-        mode=0640
+      htpasswd:
+        path: /etc/httpd/webpass
+        name: engineer1
+        password: test123
+        state: present
+        create: yes
+        owner: apache
+        mode: 0640
       notify: restart httpd
 
     - name: create engineer dir
-      file: path=/var/www/html/engineer state=directory
+      file:
+        path: /var/www/html/engineer
+        state: directory
       notify: restart httpd
 
-    - name: copy configuration
-      template: src=templates/httpd.conf.j2 dest=/etc/httpd/conf/httpd.conf
+    - name: template base configuration
+      template:
+        src: ../templates/httpd.conf.j2
+        dest: /etc/httpd/conf/httpd.conf
+      notify: restart httpd
+
+    - name: allow selinux proxy
+      seboolean:
+        name: httpd_can_network_connect
+        persistent: yes
+        state: yes
+
+    - name: copy site configuration
+      template:
+        src: ../files/app.conf
+        dest: /etc/httpd/conf.d/
       notify: restart httpd
 
     - name: copy index
-      template: src={{ item }} dest=/var/www/html/{{ item | basename | regex_replace('\.j2', '') | regex_replace('_','/') }} mode=0644
-      with_fileglob: templates/*.html.j2
+      template:
+        src: "{{ item }}"
+        dest: "/var/www/html/{{ item | basename | regex_replace('.j2', '') | regex_replace('_','/') }}"
+        mode: 0644
+      with_fileglob: ../templates/*.html.j2
       notify: restart httpd
 
-    - name: debug ipaddr
-      command: /sbin/ip addr show dev eth0
-      register: ipaddr
-      changed_when: False
-
-    - debug: var=ipaddr.stdout_lines
+    - name: copy scripts
+      copy:
+        src: "{{ item }}"
+        dest: "/var/www/html/{{ item | basename }}"
+        mode: 0644
+      with_fileglob: ../files/*.js
+      notify: restart httpd
 
     - name: ensure httpd running
-      service: name=httpd state=started enabled=yes
+      service:
+        name: httpd
+        state: started
+        enabled: yes
 
   handlers:
     - name: restart httpd

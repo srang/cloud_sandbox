@@ -40,11 +40,15 @@
       file:
         path: "{{ git_dir }}"
         state: directory
+        owner: vagrant
         mode: 0755
 
     - name: clone this repo
+      become: no
       git:
         clone: yes
+        force: yes
+        version: virtualbox
         repo: "{{ git_repo }}"
         dest: "{{ git_dir }}"
 

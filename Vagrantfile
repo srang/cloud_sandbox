@@ -9,7 +9,7 @@ Vagrant.configure(2) do |config|
 	config.vm.define "vagrant1" do | vagrant1 |
 		vagrant1.vm.box = "centos/7"
 		vagrant1.vm.box_check_update = false
-		vagrant1.vm.network "forwarded_port", guest: 81, host: 8083
+		vagrant1.vm.network "forwarded_port", guest: 80, host: 8083
 		vagrant1.vm.network "private_network", ip: "172.28.128.10"
 		vagrant1.vm.hostname = "vagrant1.local"
 	end

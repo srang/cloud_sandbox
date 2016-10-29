@@ -1,0 +1,14 @@
+[Unit]
+Description=boot-app
+After=syslog.target
+
+[Service]
+Environment=APP_PORT={{ app_port }}
+Environment=DB_HOST={{ db_host }}
+Environment=DB_PORT={{ db_port }}
+User=root
+ExecStart=/opt/app.jar
+SuccessExitStatus=143
+
+[Install]
+WantedBy=multi-user.target
