@@ -47,10 +47,16 @@
         state: directory
       notify: restart httpd
 
-    - name: copy configuration
+    - name: template base configuration
       template:
         src: ../templates/httpd.conf.j2
         dest: /etc/httpd/conf/httpd.conf
+      notify: restart httpd
+
+    - name: copy site configuration
+      template:
+        src: ../files/app.conf
+        dest: /etc/httpd/conf.d/
       notify: restart httpd
 
     - name: copy index
