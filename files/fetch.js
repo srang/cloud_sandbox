@@ -3,8 +3,8 @@ $("#name-submit").on('click', function() {
     console.log("submitting " + name);
     $.get({
       url: 'http://app.server.local/hello/'+name,
-      success: function() {
-        $('#name-last').text(name);
+      success: function(resp) {
+        $('#name-last').text(resp.body);
       },
       error: function() {
         $('#name-last').text("error");
