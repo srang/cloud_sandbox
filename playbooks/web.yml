@@ -28,7 +28,11 @@
 
     - name: install passlib
       yum:
-        name: python-passlib
+        name: "{{ item }}"
+        state: installed
+      with_items:
+        - python-passlib
+        - libsemanage-python
 
     - name: add engineer to webpass
       htpasswd:
